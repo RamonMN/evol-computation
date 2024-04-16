@@ -1,4 +1,15 @@
-a = [1, 2, 3]
-b = [4, 5, 6]
+import random
+a = '00110101'
+print(a)
 
-print(a + b)
+number = []
+for bit in a:
+    if (random.random() <= 0.1):
+        if (bit == '0'):
+            number.append('1')
+        else:
+            number.append('0')
+    else:
+        number.append(bit)
+
+print("".join(number))
