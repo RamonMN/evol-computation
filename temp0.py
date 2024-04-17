@@ -1,15 +1,3 @@
-import random
-a = '00110101'
-print(a)
+a = "teste10"
 
-number = []
-for bit in a:
-    if (random.random() <= 0.1):
-        if (bit == '0'):
-            number.append('1')
-        else:
-            number.append('0')
-    else:
-        number.append(bit)
-
-print("".join(number))
+print(a.removeprefix("teste"))

@@ -42,4 +42,4 @@ def interpolate(integer_value, size, inf_lim, sup_lim):
     return interpolated
 
 if __name__ == '__main__':
-    pass
+    print(deJong5(1.0, 2.0))

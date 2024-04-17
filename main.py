@@ -44,8 +44,11 @@ for _ in range(30):
     best_fitness_by_run.append(get_best(generations))
 
 
+test = []
+for i in range(30):
+    test.append(best_fitness_by_run)
 
-plt.boxplot(best_fitness_by_run)
+plt.boxplot(test)
 plt.show()
 
 
