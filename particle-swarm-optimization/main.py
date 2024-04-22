@@ -1,93 +1,64 @@
 import random
-from costFunctions import costFunction
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+from costFunctions import costFunction, deJong5, langermann
+
+def saturate(value, range):
+    returnValue = 0.0
+    if value < range[0]:
+        returnValue = range[0]
+    elif value > range[1]:
+        returnValue = range[1]
+    else:
+        returnValue = value
+
+    return returnValue
+
 
 class Particle():
-    def __init__(self, x, v, xRange, vRange):
-        # Since we are working with two dimensional functions,
-        # we can see the x[0] as the x axis and the x[1] as the y axis,
-        # in the cartesian plane
+    def __init__(self, x, v):
         self.x = x
         self.v = v
-
-        self.xRange = xRange
-        self.vRange = vRange
-        
+     
         self.particleBestPosition = self.x
-        self.particleBestValue = costFunction(self.particleBestPosition)
-
-    def saturatePosition(self):
-        # Check if x exceeds the left border
-        if self.x[0] < self.xRange[0]:
-            self.x[0] = self.xRange[0]
-            self.v[0] = 0.0
-
-        # Check if x exceeds the right border
-        if self.x[0] > self.xRange[1]:
-            self.x[0] = self.xRange[1]
-            self.v[0] = 0.0
-
-        # Check if x exceeds the bottom border
-        if self.x[1] < self.xRange[0]:
-            self.x[1] = self.xRange[0]
-            self.v[1] = 0.0
-
-        # Check if x exceeds the top border
-        if self.x[1] > self.xRange[1]:
-            self.x[1] = self.xRange[1]
-            self.v[1] = 0.0       
-
-    def saturateVelocity(self):
-
-        if self.v[0] < self.vRange[0]:
-            self.v[0] = self.vRange[0]
-        
-        if self.v[0] > self.vRange[1]:
-            self.v[0] = self.vRange[1]
-        
-        if self.v[1] < self.vRange[0]:
-            self.v[0] = self.vRange[0]
-
-        if self.v[1] > self.vRange[1]:
-            self.v[1] = self.vRange[1]
+        self.particleBestValue = costFunction(self.particleBestPosition)   
 
 
 class Population():
-    def __init__(self, populationSize, xRange, vRange, w, c1, c2):
+    def __init__(self, costFunction, populationSize, particleSize, xRange, vRange, w, c1, c2):
         self.population = []
         
         self.populationSize = populationSize
+        self.particleSize = particleSize
         self.xRange = xRange
         self.vRange = vRange
 
         self.w = w
         self.c1 = c1
         self.c2 = c2
+        self.costFunction = costFunction
 
         self.globalBestPosition = [0.0, 0.0]
-        self.globalBestValue = costFunction(self.globalBestPosition)
+        self.globalBestValue = self.costFunction(self.globalBestPosition)
 
         self.initializePopulation()
 
     def initializePopulation(self):
-        for i in range(self.populationSize):           
-            # Take random values between xMin and xMax
-            x1 = self.xRange[0] + random.random()*(self.xRange[1] - self.xRange[0])
-            x2 = self.xRange[0] + random.random()*(self.xRange[1] - self.xRange[0])
-            x = [x1, x2]
+        for i in range(self.populationSize):  
+            x = []
+            v = []
+            for j in range(self.particleSize):
+                x.append(random.uniform(self.xRange[0], self.xRange[1]))
+                v.append(random.uniform(self.vRange[0], self.vRange[1])) 
 
-            # Take random values between vMin and vMax
-            v1 = self.vRange[0] + random.random()*(self.vRange[1] - self.vRange[0])
-            v2 = self.vRange[0] + random.random()*(self.vRange[1] - self.vRange[0])
-            v = [v1, v2]
-
-            self.population.append(Particle(x, v, self.xRange, self.vRange))
+            self.population.append(Particle(x, v))
 
     def updatePopulation(self):
 
         for particle in self.population:
             
-            particleValue = costFunction(particle.x)
+            particleValue = self.costFunction(particle.x)
 
             if (particleValue < particle.particleBestValue):
                 particle.particleBestPosition = particle.x
@@ -97,49 +68,72 @@ class Population():
                     self.globalBestPosition = particle.x
                     self.globalBestValue = particleValue
 
-            # Update the two velocities
-            r1 = random.random()
-            r2 = random.random()
+            for j in range(self.particleSize):
+                # Update the two velocities
+                r1 = random.random()
+                r2 = random.random()
 
-            particle.v[0] = self.w*particle.v[0] + self.c1*r1*(particle.particleBestPosition[0] - particle.x[0]) + self.c2*r2*(self.globalBestPosition[0] - particle.x[0])
+                particle.v[j] = self.w*particle.v[j] + self.c1*r1*(particle.particleBestPosition[j] - particle.x[j]) + self.c2*r2*(self.globalBestPosition[j] - particle.x[j])
+                particle.v[j] = saturate(particle.v[j], self.vRange)
 
-            r1 = random.random()
-            r2 = random.random()
-
-            particle.v[1] = self.w*particle.v[1] + self.c1*r1*(particle.particleBestPosition[1] - particle.x[1]) + self.c2*r2*(self.globalBestPosition[1] - particle.x[1])
-
-            # Saturate velocity between vmin and vmax
-            particle.saturateVelocity()
-
-            # Update the two positions
-            particle.x[0] = particle.x[0] + particle.v[0]
-            particle.x[1] = particle.x[1] + particle.v[1]
-            
-            # Saturate positions
-            particle.saturatePosition()
-
-
-if __name__ == '__main__':
+                particle.x[j] = particle.x[j] + particle.v[j]
+                particle.x[j] = saturate(particle.x[j], self.xRange)
 
 
 
-    pop = Population(1000, [-65.536, 65.536], [-0.05, 0.05], 0.7, 2.05, 2.05)
+# Parameters
+populationSize = 500
+particleSize = 2
+w = 0.7
+c1 = 100.05
+c2 = 0.05
+nEpochs = 10
 
-    nEpochs = 100
+cost = deJong5
+xRange = [-65.536, 65.536]
+vRange = [-0.1, 0.1]
 
-    for i in range(nEpochs):
-        pop.updatePopulation()
-        
-        print(pop.globalBestValue)
 
-        #X = []
-        #Y = []
-        #for particle in pop.population:
-        #    X.append(particle.x[0])
-        #    Y.append(particle.x[1])
 
-        #plt.figure()
-        #plt.scatter(X, Y)
-        
 
-    #plt.show()
+pop = Population(costFunction, populationSize, particleSize, xRange, vRange, w, c1, c2)
+
+X_c, Y_c = np.meshgrid(np.linspace(xRange[0], xRange[1], 200), np.linspace(xRange[0], xRange[1], 200))
+Z_c = cost(X_c, Y_c)
+
+X = []
+Y = []
+for particle in pop.population:
+    X.append(particle.x[0])
+    Y.append(particle.x[1])
+
+
+fig, ax = plt.subplots()
+ax.set_xlim(xRange)
+ax.set_ylim(xRange)
+ax.imshow(Z_c, extent=(X_c.min(), X_c.max(), Y_c.max(), Y_c.min()), interpolation='nearest')
+scat = ax.scatter(X, Y, s=10, color='red')
+
+def update(frame):
+    pop.updatePopulation()
+    print(pop.globalBestValue)
+    
+    X = []
+    Y = []
+    for particle in pop.population:
+        X.append(particle.x[0])
+        Y.append(particle.x[1])
+    
+    ax.cla()
+    ax.set_xlim(xRange)
+    ax.set_ylim(xRange)
+
+    ax.imshow(Z_c, extent=(X_c.min(), X_c.max(), Y_c.max(), Y_c.min()), interpolation='nearest', cmap='gray')
+    scat = ax.scatter(X, Y, s=10, color='red')
+
+
+    return scat,
+
+ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
+plt.show()
+
