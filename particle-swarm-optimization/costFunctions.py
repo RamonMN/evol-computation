@@ -1,20 +1,20 @@
 import math
 import numpy as np
 
-@np.vectorize
-def deJong5(x1, x2):
+#@np.vectorize
+def deJong5(xx):
     a1 = [-32.0, -16.0, 0.0, 16.0, 32.0]*5
     a2 = [-32.0]*5 + [-16.0]*5 + [0.0]*5 + [16.0]*5 + [32.0]*5
     a = [a1, a2]
 
     sum = 0.002
     for i in range(1, 26):
-        sum += ( 1 / (i + (x1 - a[0][i-1])**6 + (x2 - a[1][i-1])**6) )
+        sum += ( 1 / (i + (xx[0] - a[0][i-1])**6 + (xx[1] - a[1][i-1])**6) )
     
     return 1.0/sum
 
-@np.vectorize
-def langermann(x1, x2):
+#@np.vectorize
+def langermann(xx):
     m = 5
     c = [1, 2, 5, 2, 3]
     A = [[3, 5], [5, 2], [2, 1], [1, 4], [7, 9]]
@@ -23,9 +23,9 @@ def langermann(x1, x2):
     for i in range(m):
         inner = 0.0
 
-        inner += (x1 - A[i][0]) ** 2
+        inner += (xx[0] - A[i][0]) ** 2
         
-        inner += (x2 - A[i][1]) ** 2
+        inner += (xx[1] - A[i][1]) ** 2
         
         newTerm = c[i] * math.exp(-inner / math.pi) * math.cos(math.pi * inner)
         
