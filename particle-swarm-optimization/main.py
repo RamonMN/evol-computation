@@ -179,60 +179,77 @@ configs = [{"cost": deJong5, "xRange": xRangeDejong5, "method": "default", "popS
            ]
 
 
-bestPerConfig = []
-for i in range(len(configs)):
+pop = Population(configs[23]["cost"], configs[23]["popSize"], particleSize, configs[23]["xRange"], vRange, w, c1, c2)
 
-    print(f"config {i}...")
+fitnessByGeneration_dejong = []
+for epoch in range(configs[23]["nEpochs"]):
 
-    bestParticles = []
-    for j in range(30):
-        pop = Population(configs[i]["cost"], configs[i]["popSize"], particleSize, configs[i]["xRange"], vRange, w, c1, c2)
+    pop.updatePopulation(configs[23]["method"], epoch, configs[23]["nEpochs"])
+    fitnessByGeneration_dejong.append(pop.globalBestValue)
 
-        for epoch in range(configs[i]["nEpochs"]):
+df1 = pd.DataFrame()
+df1[f"dejong"] = fitnessByGeneration_dejong
+df1.to_csv("dejong_best.csv", sep=";", index=None)
 
-            pop.updatePopulation(configs[i]["method"], epoch, configs[i]["nEpochs"])
+
+
+pop = Population(configs[35]["cost"], configs[35]["popSize"], particleSize, configs[35]["xRange"], vRange, w, c1, c2)
+
+fitnessByGeneration_lang = []
+for epoch in range(configs[35]["nEpochs"]):
+
+    pop.updatePopulation(configs[35]["method"], epoch, configs[35]["nEpochs"])
+    fitnessByGeneration_lang.append(pop.globalBestValue)
+
+df2 = pd.DataFrame()
+df2[f"lang"] = fitnessByGeneration_lang
+df2.to_csv("lang_best.csv", sep=";", index=None)
+
+
+#bestPerConfig = []
+#for i in range(len(configs)):
+
+#    print(f"config {i}...")
+
+#    bestParticles = []
+#    for j in range(30):
+#        pop = Population(configs[i]["cost"], configs[i]["popSize"], particleSize, configs[i]["xRange"], vRange, w, c1, c2)
+
+#        for epoch in range(configs[i]["nEpochs"]):
+
+#            pop.updatePopulation(configs[i]["method"], epoch, configs[i]["nEpochs"])
         
-        bestParticles.append(pop.globalBestValue)
+#        bestParticles.append(pop.globalBestValue)
 
-    bestPerConfig.append(bestParticles)
-
-
-
-bestConfigMedians = []
-for i in bestPerConfig:
-    bestConfigMedians.append(np.median(i))
-    print(f"{np.mean(i)};{np.median(i)};{np.max(i)};{np.min(i)}")
-
-
-bestConfigDejong = np.min(bestConfigMedians[0:27])
-bestConfigDejongIndex = bestConfigMedians.index(bestConfigDejong)
-print(f"best config dejong index: {bestConfigDejongIndex}")
-
-
-bestConfigLangermann = np.min(bestConfigMedians[27:])
-bestConfigLangermannIndex = bestConfigMedians.index(bestConfigLangermann)
-print(f"best config langermann index: {bestConfigLangermannIndex}")
-
-
-df = pd.DataFrame()
-
-for i in range(len(bestPerConfig)):
-    df[f"config{i}"] = bestPerConfig[i]
-
-print(df.head())
-df.to_csv("out.csv", sep=";", index=None)
+#    bestPerConfig.append(bestParticles)
 
 
 
-"""
-pop1 = Population(cost, populationSize, particleSize, xRangeDejong5, vRange, w, c1, c2)
+#bestConfigMedians = []
+#for i in bestPerConfig:
+#    bestConfigMedians.append(np.median(i))
+#    print(f"{np.mean(i)};{np.median(i)};{np.max(i)};{np.min(i)}")
 
 
-for epoch in range(nEpochs):
-    pop1.updatePopulation(method, epoch, nEpochs)
+#bestConfigDejong = np.min(bestConfigMedians[0:27])
+#bestConfigDejongIndex = bestConfigMedians.index(bestConfigDejong)
+#print(f"best config dejong index: {bestConfigDejongIndex}")
 
-    print(pop1.globalBestValue)
-"""
+
+#bestConfigLangermann = np.min(bestConfigMedians[27:])
+#bestConfigLangermannIndex = bestConfigMedians.index(bestConfigLangermann)
+#print(f"best config langermann index: {bestConfigLangermannIndex}")
+
+
+#df = pd.DataFrame()
+
+#for i in range(len(bestPerConfig)):
+#    df[f"config{i}"] = bestPerConfig[i]
+
+#print(df.head())
+#df.to_csv("out.csv", sep=";", index=None)
+
+
 
 """
 X_c, Y_c = np.meshgrid(np.linspace(xRange[0], xRange[1], 200), np.linspace(xRange[0], xRange[1], 200))
